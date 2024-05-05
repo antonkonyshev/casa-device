@@ -20,7 +20,7 @@ void setupRouting() {
         preferences_t* preferences = getPreferences();
 
         size_t params = request->params();
-        for (int i = 0; i < params; i++) {
+        for (size_t i = 0; i < params; i++) {
             AsyncWebParameter* param = request->getParam(i);
             if (param->name() == "wifi_ssid") {
                 preferences->wifi_ssid = param->value().c_str();
