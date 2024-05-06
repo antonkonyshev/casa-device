@@ -17,29 +17,16 @@ void setupRouting() {
 
     server.on("/settings", HTTP_POST, [](AsyncWebServerRequest* request) {
         digitalWrite(LED_PIN, HIGH);
-        preferences_t* preferences = getPreferences();
-
-        size_t params = request->params();
-        for (size_t i = 0; i < params; i++) {
-            AsyncWebParameter* param = request->getParam(i);
-            if (param->name() == "wifi_ssid") {
-                preferences->wifi_ssid = param->value().c_str();
-            } else if (param->name() == "wifi_password") {
-                preferences->wifi_password = param->value().c_str();
-            }
-        }
-
-        saveSettings(preferences);
+        saveSettings(request);
         request->send(200);
         digitalWrite(LED_PIN, LOW);
     });
 
     server.on("/settings", [](AsyncWebServerRequest* request) {
         digitalWrite(LED_PIN, HIGH);
-        preferences_t* preferences = getPreferences();
-        char buffer[512] = {0};
-        snprintf(buffer, 512, "{}");
-        request->send(200, "application/json", buffer);
+        char payload[512] = {0};
+        serializedSettings(payload);
+        request->send(200, "application/json", payload);
         digitalWrite(LED_PIN, LOW);
     });
 

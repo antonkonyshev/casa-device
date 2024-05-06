@@ -10,7 +10,7 @@ void saveSettings(preferences_t* prefs) {
         savePreference(NVS_WIFI_SSID_CREDENTIALS_KEY, prefs->wifi_ssid);
         savePreference(NVS_WIFI_PASSWORD_CREDENTIALS_KEY, prefs->wifi_password);
     }
-    // Save other preferences
+    savePreference(NVS_JOURNAL_LENGTH_KEY, prefs->journal_length);
     closePreferencesStorage();
 
     #endif
@@ -24,12 +24,28 @@ void saveSettings(preferences_t* prefs) {
     #endif
 }
 
+void saveSettings(AsyncWebServerRequest* request) {
+    size_t params = request->params();
+    for (size_t idx = 0; idx < params; idx++) {
+        AsyncWebParameter* param = request->getParam(idx);
+
+        if (param->name() == NVS_JOURNAL_LENGTH_KEY) {
+            preferences->journal_length = param->value().toInt();
+        } else if (param->name() == NVS_WIFI_SSID_CREDENTIALS_KEY) {
+            preferences->wifi_ssid = param->value().c_str();
+        } else if (param->name() == NVS_WIFI_PASSWORD_CREDENTIALS_KEY) {
+            preferences->wifi_password = param->value().c_str();
+        }
+    }
+    saveSettings(preferences);
+}
+
 void setupPreferences() {
     preferences = new preferences_t;
     #ifdef ESP32_DEVICE
 
     openPreferencesStorage();
-    // Load preferences
+    loadPreference(NVS_JOURNAL_LENGTH_KEY, &preferences->journal_length, NVS_JOURNAL_LENGTH_DEFAULT);
     closePreferencesStorage();
 
     #endif
@@ -38,6 +54,10 @@ void setupPreferences() {
     loadPreference(preferences);
 
     #endif
+}
+
+void serializedSettings(char* buffer) {
+    sprintf(buffer, "{\"journal_length\":%d}", preferences->journal_length);
 }
 
 preferences_t* getPreferences() {
