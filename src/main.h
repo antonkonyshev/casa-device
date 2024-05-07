@@ -4,5 +4,5 @@
 
 #include "CasaLib/logging.h"
 #include "CasaLib/network.h"
-
+#include "preferences.h"
 #include "server.h"

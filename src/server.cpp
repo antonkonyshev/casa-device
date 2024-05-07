@@ -2,6 +2,10 @@
 
 AsyncWebServer server(API_PORT);
 
+void serviceInfoResponsePayload(char* buffer) {
+    sprintf(buffer, "{\"service\":\"device\",\"name\":\"Device\",\"id\":\"%s\",\"sensors\":[]}", DEVICE_ID);
+}
+
 void setupRouting() {
     server.on("/", [](AsyncWebServerRequest* request) {
         digitalWrite(LED_PIN, HIGH);
@@ -9,26 +13,10 @@ void setupRouting() {
         digitalWrite(LED_PIN, LOW);
     });
 
-    server.on("/service", [](AsyncWebServerRequest* request) {
-        digitalWrite(LED_PIN, HIGH);
-        request->send(200, "application/json", "{\"service\":\"device\",\"name\":\"Device\",\"id\":\"" + String(DEVICE_ID) + "\",\"sensors\":[]}");
-        digitalWrite(LED_PIN, LOW);
-    });
-
-    server.on("/settings", HTTP_POST, [](AsyncWebServerRequest* request) {
-        digitalWrite(LED_PIN, HIGH);
-        saveSettings(request);
-        request->send(200);
-        digitalWrite(LED_PIN, LOW);
-    });
-
-    server.on("/settings", [](AsyncWebServerRequest* request) {
-        digitalWrite(LED_PIN, HIGH);
-        char payload[512] = {0};
-        serializedSettings(payload);
-        request->send(200, "application/json", payload);
-        digitalWrite(LED_PIN, LOW);
-    });
+    server.on("/service", handleServiceInfoRequest);
+    server.on("/settings", HTTP_POST, handleSettingsEditRequest);
+    server.on("/settings", handleSettingsReadRequest);
+    server.on("/journal", handleJournalRequest);
 
     server.begin();
 }

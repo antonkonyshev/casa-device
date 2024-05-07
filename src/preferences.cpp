@@ -56,7 +56,7 @@ void setupPreferences() {
     #endif
 }
 
-void serializedSettings(char* buffer) {
+void serializeSettings(char* buffer) {
     sprintf(buffer, "{\"journal_length\":%d}", preferences->journal_length);
 }
 
